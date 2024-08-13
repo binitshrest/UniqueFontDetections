@@ -1,8 +1,11 @@
 # font_detection.py
+import warnings
 
 import cv2
 import numpy as np
 from sklearn.cluster import KMeans
+from sklearn.exceptions import ConvergenceWarning
+
 
 
 def extract_text_regions(image_path):
@@ -44,6 +47,16 @@ def extract_font_features(contour, image):
 
 def cluster_fonts(feature_vectors, n_clusters=2):
     # Use KMeans clustering to group similar fonts together
+    # with warnings.catch_warnings():
+    #     warnings.simplefilter("ignore", category=ConvergenceWarning)
+    feature_vectors = np.unique(feature_vectors, axis=0)
+
+    # Adjust n_clusters to be less than or equal to the number of distinct points
+    n_clusters = min(len(feature_vectors), 1267)
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=ConvergenceWarning)
+
     kmeans = KMeans(n_clusters=n_clusters)
     kmeans.fit(feature_vectors)
 
